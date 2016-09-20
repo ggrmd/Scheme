@@ -13,7 +13,19 @@
 #include <stdio.h>
 
 void sfs_print_atom( object o ) {
-
+    if (o->type == SFS_INTEGER)
+    {
+    	printf("%d",o->this.integer);
+    }
+    if (o->type == SFS_CHARACTER)
+    {	
+    	printf("%c",o->this.character);
+    }
+    if (o->type == SFS_STRING)
+    {
+    	printf("%s",o->this.string);
+    }
+	
     return;
 }
 

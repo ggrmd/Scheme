@@ -310,16 +310,14 @@ object sfs_read_atom( char *input, uint *here ) {
     object atom = NULL;
     uint step=*here;
 
-	printf("%c",input[step+3]);
-	/*printf("%c\n",input[step+3]);*/
+
+
     while (input[step]==' ' && input[step]!='\0') {
         step++;
     }
 
     switch (input[step]) {
-    case '#':
-    {	
-	int compteur=0;
+	case '#':
         if (input[step+1]=='\\')
         {
             if (isspace(input[step+2]))
@@ -329,30 +327,22 @@ object sfs_read_atom( char *input, uint *here ) {
             }
             else
             {
-                if (isspace(input[step+3]) || input[step+3]=='\0' || input[step+3]=='\n' || input[step+3]==' ' || &input[step+3]==NULL)
+                if (isspace(input[step+3]))
                 {
                     atom=make_character(input[step+2]);
-		    compteur+=1;
                 }
                 if (input[step+2]=='s' && input[step+3]=='p' && input[step+4]=='a' && input[step+5]=='c' && input[step+6]=='e' && isspace(input[step+7]))
                 {
                     atom=make_character(' ');
-		    compteur+=1;
                 }
                 if (input[step+2]=='n' && input[step+3]=='e' && input[step+4]=='w' && input[step+5]=='l' && input[step+6]=='i' && input[step+7]=='n' && input[step+8]=='e' && isspace(input[step+9]))
                 {
                     atom=make_character('\n');
-		    compteur+=1;
                 }
-		if (compteur>=1)
-		{
-			compteur=0;
-		}
-                else {	
+                else {
                     WARNING_MSG("Not valid character");
                     return NULL;
                 }
-
             }
         }
         if (input[step+1]=='t') {
@@ -364,7 +354,7 @@ object sfs_read_atom( char *input, uint *here ) {
                 return NULL;
             }
         }
-        if (input[step+1]=='t')
+        if (input[*(here+1)]=='t')
         {
             if (isspace(input[step+2]) || input[step+2]=='\0' )
             {
@@ -376,7 +366,7 @@ object sfs_read_atom( char *input, uint *here ) {
             }
         }
         break;
-    }
+
 
     case 1:
     case 2:
@@ -394,7 +384,7 @@ object sfs_read_atom( char *input, uint *here ) {
         while (input[step]==' ') {
             step++;
         }
-        if (input[step]!='\0' || input[step]!=' ' || input[step]!='\n')
+        if (input[step]!='\0' || input[step]!=' ')
         {
             WARNING_MSG("Not valid number");
             return NULL;
@@ -403,9 +393,9 @@ object sfs_read_atom( char *input, uint *here ) {
             atom=make_integer(number);
         }
     }
-    break;
+        break;
     }
-    
+
 
     return atom;
 }

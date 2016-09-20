@@ -36,9 +36,6 @@ object make_character(char caractere){
 	return t;
 }
 
-object stringlength( char * str   ) {
-}
-
 
 object make_string(char * str ){
 	object t=make_object(SFS_STRING);
@@ -55,6 +52,6 @@ object make_bool(void) {
 
 object make_integer(int number) {
 	object t=make_object(SFS_INTEGER);
-	t->this.number=number;
+	t->this.integer=number;
 	return t;
 }	

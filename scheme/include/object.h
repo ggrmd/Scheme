@@ -23,7 +23,7 @@ typedef struct object_t {
 
     union {
 
-        num              number;
+        int              integer;
         char             character;
         string           string;
         string           symbol;
@@ -47,7 +47,7 @@ object make_string(string str);
 object make_integer(int number);
 object make_bool(void);
 
-#define SFS_NUMBER       0x00
+#define SFS_INTEGER      0x00
 #define SFS_CHARACTER    0x01
 #define SFS_STRING       0x02
 #define SFS_PAIR         0x03
