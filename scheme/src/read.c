@@ -310,8 +310,7 @@ object sfs_read_atom( char *input, uint *here ) {
     object atom = NULL;
     uint step=*here;
 
-	printf("%c",input[step+3]);
-	/*printf("%c\n",input[step+3]);*/
+
     while (input[step]==' ' && input[step]!='\0') {
         step++;
     }
@@ -377,31 +376,29 @@ object sfs_read_atom( char *input, uint *here ) {
         }
         break;
     }
-
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
+    
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
     {
         int number;
         char* pend;
         number=strtol(&input[step],&pend,0);
-        while (input[step]==' ') {
-            step++;
-        }
-        if (input[step]!='\0' || input[step]!=' ' || input[step]!='\n')
-        {
-            WARNING_MSG("Not valid number");
-            return NULL;
-        }
-        else {
-            atom=make_integer(number);
-        }
+	/*printf("%d",*pend);*/
+
+	if ( *pend != 0)
+	{
+		WARNING_MSG("Not valid number");
+	  	return NULL;
+	}
+  
+        atom=make_integer(number);
     }
     break;
     }
