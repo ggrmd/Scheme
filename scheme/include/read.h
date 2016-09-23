@@ -27,7 +27,7 @@ object sfs_read( char *input, uint *here );
 object sfs_read_atom( char *input, uint *here );
 object sfs_read_pair( char *stream, uint *i );
 
-
+char * extraire_chaine(char * chaine, char* str);
 #ifdef __cplusplus
 }
 #endif

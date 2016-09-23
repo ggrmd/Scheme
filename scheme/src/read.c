@@ -401,6 +401,14 @@ object sfs_read_atom( char *input, uint *here ) {
         atom=make_integer(number);
     }
     break;
+
+    case '"':
+    {
+	char     str[BIGSTRING]="";
+	extraire_chaine(input+1,str);
+	atom=make_string(str);
+    }
+    break;
     }
     
 
@@ -414,3 +422,38 @@ object sfs_read_pair( char *stream, uint *i ) {
     return pair;
 }
 
+char * extraire_chaine(char * chaine, char* str)
+{
+	int n=strlen(chaine);	
+	char *p=NULL;
+	int length=0;
+	p=strchr(chaine,'"');
+	printf("%s",p);
+	if (p!=NULL && p<chaine+n-1)
+	{
+		if(*(p-1)!='\\')
+		{
+			WARNING_MSG("Not valid string");
+			return str;
+		}
+		else
+		{
+			length=p-chaine-1;
+			strncat(str,chaine,length);
+			str[length]='"';
+			extraire_chaine(chaine+length+1,str);
+		}
+	}
+	else
+	{
+		strncat(str,chaine,n-1);
+	}
+	return str;
+}
+
+
+
+
+
+
+	
