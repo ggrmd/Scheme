@@ -55,3 +55,4 @@ object make_integer(int number) {
 	t->this.integer=number;
 	return t;
 }	
+

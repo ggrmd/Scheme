@@ -404,8 +404,9 @@ object sfs_read_atom( char *input, uint *here ) {
 
     case '"':
     {
+	int k=0;
 	char     str[BIGSTRING]="";
-	extraire_chaine(input+1,str);
+	extraire_chaine(input+1,str,k);
 	atom=make_string(str);
     }
     break;
@@ -422,17 +423,25 @@ object sfs_read_pair( char *stream, uint *i ) {
     return pair;
 }
 
-char * extraire_chaine(char * chaine, char* str)
+char * extraire_chaine(char * chaine, char* str,int k)
 {
 	int n=strlen(chaine);	
 	char *p=NULL;
 	int length=0;
 	p=strchr(chaine,'"');
-	printf("%s",p);
-	if (p!=NULL && p<chaine+n-1)
+	if (p==NULL)
+	{		
+		WARNING_MSG("Not valid string");
+	}
+	if (p-chaine+1==n)
+	{
+		strncat(str,chaine,n-1);
+		return str;	
+	}
+	else
 	{
 		if(*(p-1)!='\\')
-		{
+		{		
 			WARNING_MSG("Not valid string");
 			return str;
 		}
@@ -440,13 +449,13 @@ char * extraire_chaine(char * chaine, char* str)
 		{
 			length=p-chaine-1;
 			strncat(str,chaine,length);
-			str[length]='"';
-			extraire_chaine(chaine+length+1,str);
-		}
-	}
-	else
-	{
-		strncat(str,chaine,n-1);
+			k+=length;
+			printf("%d \n",k);
+			printf("%d \n",length);
+			str[k]='"';
+			p=NULL;
+			extraire_chaine(chaine+length+2,str,k);
+		}		
 	}
 	return str;
 }
