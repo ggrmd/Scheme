@@ -56,3 +56,8 @@ object make_integer(int number) {
 	return t;
 }	
 
+/*object make_pair(void){
+	object t=make_object(SFS_PAIR);
+	t->this.pair.car=val;
+	*/
+	

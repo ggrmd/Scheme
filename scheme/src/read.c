@@ -309,10 +309,11 @@ object sfs_read_atom( char *input, uint *here ) {
 
     object atom = NULL;
     uint step=*here;
-
+    int signe=0;
 
     while (input[step]==' ' && input[step]!='\0') {
         step++;
+	*here++;
     }
 
     switch (input[step]) {
@@ -332,16 +333,19 @@ object sfs_read_atom( char *input, uint *here ) {
                 {
                     atom=make_character(input[step+2]);
 		    compteur+=1;
+		    *here+=3;
                 }
-                if (input[step+2]=='s' && input[step+3]=='p' && input[step+4]=='a' && input[step+5]=='c' && input[step+6]=='e' && isspace(input[step+7]))
+                if (input[step+2]=='s' && input[step+3]=='p' && input[step+4]=='a' && input[step+5]=='c' && input[step+6]=='e' && (isspace(input[step+7])|| input[step+7]=='\0' ))
                 {
                     atom=make_character(' ');
 		    compteur+=1;
+		    *here+=7;
                 }
-                if (input[step+2]=='n' && input[step+3]=='e' && input[step+4]=='w' && input[step+5]=='l' && input[step+6]=='i' && input[step+7]=='n' && input[step+8]=='e' && isspace(input[step+9]))
+                if (input[step+2]=='n' && input[step+3]=='e' && input[step+4]=='w' && input[step+5]=='l' && input[step+6]=='i' && input[step+7]=='n' && input[step+8]=='e' && (isspace(input[step+9]) || input[step+9]=='\0' ))
                 {
                     atom=make_character('\n');
 		    compteur+=1;
+		    *here+=9;
                 }
 		if (compteur>=1)
 		{
@@ -357,17 +361,19 @@ object sfs_read_atom( char *input, uint *here ) {
         if (input[step+1]=='t') {
             if (isspace(input[step+2]) || input[step+2]=='\0' ) {
                 atom=vrai;
+		*here+=2;
             }
             else {
                 WARNING_MSG("Not valid atom");
                 return NULL;
             }
         }
-        if (input[step+1]=='t')
+        if (input[step+1]=='f')
         {
             if (isspace(input[step+2]) || input[step+2]=='\0' )
             {
                 atom=faux;
+		*here+=2;
             }
             else {
                 WARNING_MSG("Not valid atom");
@@ -376,7 +382,36 @@ object sfs_read_atom( char *input, uint *here ) {
         }
         break;
     }
-    
+    case '+':
+	if (isdigit(input[step+1]))
+	{	
+		step++;
+		goto NUM;
+	}
+	else
+	{
+		goto SINON;
+	}
+    break;
+
+    case '-':
+    {	
+	if (isdigit(input[step+1]))
+	{	
+		step++;
+		signe=1;
+		goto NUM;
+	}
+	else
+	{
+		goto SINON;
+	}
+    }
+    break;
+
+
+
+    case '0':
     case '1':
     case '2':
     case '3':
@@ -386,19 +421,25 @@ object sfs_read_atom( char *input, uint *here ) {
     case '7':
     case '8':
     case '9':
+NUM:   
     {
+
         int number;
         char* pend;
         number=strtol(&input[step],&pend,0);
-	/*printf("%d",*pend);*/
-
-	if ( *pend != 0)
+	printf("%d    ",number);
+	printf("%d \n",*pend);
+	if ( *pend != 0 && *pend!=32 && *pend!=41)
 	{
 		WARNING_MSG("Not valid number");
 	  	return NULL;
 	}
-  
+  	if (signe==1)
+	{
+		number=-number;
+	}
         atom=make_integer(number);
+	*here+=pend-&input[step]+1;
     }
     break;
 
@@ -410,24 +451,53 @@ object sfs_read_atom( char *input, uint *here ) {
 	atom=make_string(str);
     }
     break;
+
+    default :
+SINON:
+
+    break;
     }
     
 
+    
     return atom;
 }
 
-object sfs_read_pair( char *stream, uint *i ) {
 
-    object pair = NULL;
 
-    return pair;
+
+
+object sfs_read_pair( char *stream, uint *here ) {
+
+    object o_pair= make_object(SFS_PAIR) ;
+    
+    printf("%d \n",*here);
+    o_pair->this.pair.car = sfs_read(stream, here);
+    if (stream[*here]!=' ')
+    printf("%d \n",*here);
+    o_pair->this.pair.cdr = sfs_read(stream, here);
+    /*return 0;*/
+    
+    return o_pair;
 }
+
+
+
 
 char * extraire_chaine(char * chaine, char* str,int k)
 {
 	int n=strlen(chaine);	
 	char *p=NULL;
+	char *q=strchr(chaine,'\\');
 	int length=0;
+	if (q!=NULL)
+	{
+		if (*(q+1)!='"')
+		{
+			WARNING_MSG("Not valid string");
+		}
+		q=NULL;
+	}	
 	p=strchr(chaine,'"');
 	if (p==NULL)
 	{		
@@ -450,8 +520,6 @@ char * extraire_chaine(char * chaine, char* str,int k)
 			length=p-chaine-1;
 			strncat(str,chaine,length);
 			k+=length;
-			printf("%d \n",k);
-			printf("%d \n",length);
 			str[k]='"';
 			p=NULL;
 			extraire_chaine(chaine+length+2,str,k);
