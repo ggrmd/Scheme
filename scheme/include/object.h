@@ -47,6 +47,7 @@ object make_string(string str);
 object make_integer(int number);
 object make_bool(void);
 object make_pair(object car,object cdr);
+object make_symbol( string str );
 
 object cdr(object o);
 object car(object o);
