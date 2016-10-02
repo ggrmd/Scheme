@@ -89,4 +89,8 @@ object cdr(object o){
 	return o->this.pair.cdr;
 }
 	
-	
+object make_inf(void){
+	object t=make_object(SFS_INTEGER);
+	t->this.special=t;
+	return t;
+}

@@ -16,7 +16,9 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-
+#include <stdlib.h>
+#include <limits.h>
+#include <errno.h>
 #include "object.h"
 
 enum {S_OK, S_KO, S_END};

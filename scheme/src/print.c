@@ -25,7 +25,21 @@ void sfs_print_atom( object o ) {
 
     if (o->type == SFS_INTEGER)
     {
-    	printf("%d",o->this.integer);
+	if (o->this.integer==inf || o->this.integer==-inf)
+	{
+		if (o->this.integer==inf)
+		{
+			printf("+inf");
+		}
+		if (o->this.integer==-inf)
+		{
+			printf("-inf");
+		}
+	}
+	else
+	{
+    		printf("%d",o->this.integer);
+	}
     }
 
     if (o->type == SFS_CHARACTER)

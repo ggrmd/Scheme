@@ -437,12 +437,18 @@ NUM:
 
         int number;
         char* pend;
+	errno=0;
         number=strtol(&input[step],&pend,0);
-	if ( *pend != 0 && *pend!=32 && *pend!=41 &&*pend!=9)
+	if (errno==ERANGE)
+	{
+		number=inf;
+	}
+	if (*pend!=0 && *pend!=32 && *pend!=41 &&*pend!=9 && *pend!=40 && *pend!=34)
 	{
 		WARNING_MSG("Not valid number");
 	  	return NULL;
 	}
+
   	if (signe==1)
 	{
 		number=-number;
@@ -457,14 +463,12 @@ NUM:
 	int k=0;
 	int i;
 	int length=lengthstring(input+(*here)+1);
-	/*printf("%d",length);*/
 	char     str[BIGSTRING]="";
 	char chaine[BIGSTRING]="";
 	for (i=0;i<=length;i++)
 	{
 		chaine[i]=input[i+1+(*here)];
 	}
-	printf("%s",chaine);
 	extraire_chaine(chaine,str,k,length,here);
 	atom=make_string(str);
 	*here+=strlen(str)+2;
@@ -565,6 +569,8 @@ char * extraire_chaine(char * chaine, char* str,int k,int length,uint *here)
 			longueur=p-chaine-1;
 			strncat(str,chaine,longueur);
 			k+=longueur;
+			str[k]='\\';
+			k++;
 			str[k]='"';
 			p=NULL;
 			extraire_chaine(chaine+longueur+2,str,k,length-longueur-2,here);
