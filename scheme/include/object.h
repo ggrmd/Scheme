@@ -46,6 +46,10 @@ object make_character(char caractere);
 object make_string(string str);
 object make_integer(int number);
 object make_bool(void);
+object make_pair(object car,object cdr);
+
+object cdr(object o);
+object car(object o);
 
 #define SFS_INTEGER      0x00
 #define SFS_CHARACTER    0x01

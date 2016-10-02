@@ -152,6 +152,10 @@ int main ( int argc, char *argv[] ) {
         }
 
         printf( "==> " );
+	if (output->type==SFS_PAIR)
+    	{
+        	printf("(");
+    	}
         sfs_print( output );
         printf( "\n" );
     }

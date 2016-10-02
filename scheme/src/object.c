@@ -56,8 +56,37 @@ object make_integer(int number) {
 	return t;
 }	
 
-/*object make_pair(void){
+object make_pair(object car,object cdr){
 	object t=make_object(SFS_PAIR);
-	t->this.pair.car=val;
-	*/
+	t->this.pair.car=car;
+	t->this.pair.cdr=cdr;
+	return t;
+}
+
+object make_symbol( string str )
+{
+    
+    object t = make_object(SFS_SYMBOL);
+    
+    strcpy(t->this.symbol, str);
+    
+    return t;
+}
+
+object car(object o){
+	if ( o->type !=SFS_PAIR)
+	{
+		ERROR_MSG("Not a pair !");
+	}
+	return o->this.pair.car;
+}
+
+object cdr(object o){
+	if ( o->type !=SFS_PAIR)
+	{
+		ERROR_MSG("Not a pair !");
+	}
+	return o->this.pair.cdr;
+}
+	
 	
