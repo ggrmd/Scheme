@@ -289,6 +289,7 @@ uint  sfs_get_sexpr( char *input, FILE *fp ) {
 
 
 object sfs_read( char *input, uint *here ) {
+    int k=0;
 
     while ((input[(*here)]==' ' || input[*here]=='\t') && input[(*here)]!='\0') {
 	(*here)++;
@@ -310,7 +311,28 @@ object sfs_read( char *input, uint *here ) {
         }
     }
     else {
-        return sfs_read_atom( input, here );
+	if (input[*here] == '\'' )
+	{
+		(*here)++;
+		k++;
+		while ((input[(*here)]==' ' || input[*here]=='\t') && input[(*here)]!='\0') {
+			(*here)++;
+			k++;
+		}
+		if (input[(*here)]=='\0')
+		{
+			(*here)-=k;
+			return sfs_read_atom(input, here );
+		}
+		else
+		{
+			return replacequote(input, here);
+		}
+    	}
+	else
+	{
+        	return sfs_read_atom( input, here );
+	}
     }
 }
 
@@ -603,7 +625,16 @@ int lengthstring(char * chaine){
 	return n;
 }
 
-
+object replacequote(char *input, uint *here){
+	object o_pair=make_object(SFS_PAIR);
+	object x=make_object(SFS_PAIR);
+	o_pair->this.pair.car=make_symbol("quote");
+	x->this.pair.car=sfs_read(input,here);
+	x->this.pair.cdr=nil;
+	o_pair->this.pair.cdr=x;
+	o_pair=make_pair(car(o_pair),cdr(o_pair));
+	return o_pair;
+}
 
 
 	

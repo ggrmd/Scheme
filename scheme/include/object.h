@@ -56,6 +56,14 @@ object make_inf(void);
 object cdr(object o);
 object car(object o);
 
+object make_new_env(void);
+object get_variable_value_env(object env, object symbole);
+object get_variable_value_list_env(object list_env, object symbole);
+object* ajouter_variable(object* env,object symbole,object valeur);
+object retourner_valeur_symbole_env(object symbole,object env);
+object retourner_valeur_symbole_list_env(object symbole,object list_env);
+
+
 #define SFS_INTEGER      0x00
 #define SFS_CHARACTER    0x01
 #define SFS_STRING       0x02
@@ -69,7 +77,8 @@ extern object nil;
 extern object vrai;
 extern object faux;
 extern int inf;
-
+extern object list_env;
+extern object top_level_env;
 
 #ifdef __cplusplus
 }

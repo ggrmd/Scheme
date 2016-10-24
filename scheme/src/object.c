@@ -94,3 +94,93 @@ object make_inf(void){
 	t->this.special=t;
 	return t;
 }
+
+object make_new_env(void){
+	return nil;
+}
+
+object init_top_level_env(void){
+	object top=make_new_env();
+	top=make_pair(
+
+object get_variable_value_env(object env, object symbole){
+	object p_env=env;
+	if (symbole->type!=SFS_SYMBOL)
+	{
+		WARNING_MSG("Not a symbol !");
+		return NULL;
+	}
+	while (cdr(p_env)!=nil)
+	{
+		if (strcmp(symbole,caar(p_env))==0)
+		{
+			return car(p_env);
+		}
+		p_env=cdr(p_env);
+	}
+	return NULL;
+}
+	
+object get_variable_value_list_env(object list_env, object symbole){
+	object p_list_env=list_env;
+	while (cdr(p_list_env)!=nil)
+	{
+		if (get_variable_value_env(car(p_list_env))==NULL)
+		{
+			return get_variable_value_list_env(cdr(p_list_env));
+		}
+		else
+		{
+			return get_variable_value_env(car(p_list_env));
+		}
+	}
+	return NULL;
+}
+
+
+object* ajouter_variable(object* env,object symbole,object valeur){
+	if (symbole->type!=SFS_SYMBOL)
+	{
+		WARNING_MSG("Not a symbol !");
+		return NULL;
+	}
+	if (get_variable_value_env(env,symbole)==NULL)
+	{
+		object variable=make_pair(symbole,valeur);
+		env=make_pair(variable,env);
+		return variable;
+	}
+	else
+	{
+		return variable;
+	}
+}	
+	
+object retourner_valeur_symbole_env(object symbole,object env){
+	if (get_variable_value_env(symbole,env)==NULL)
+	{
+		return nil;
+	}
+	else
+	{
+		return cdr(get_variable_value_env(symbole,env));
+	}
+}
+
+object retourner_valeur_symbole_list_env(object symbole,object list_env){
+	if (cdr(list_env)==nil)
+	{
+		WARNING_MSG("Unbound variable !");
+		return nil;
+	}
+	if (retourner_valeur_symbole_env(symbole,car(list_env))==nil)
+	{
+		return retourner_valeur_symbole_list_env(symbole,cdr(list_env));
+	}
+	else
+	{
+		return retourner_valeur_symbole_env(symbole,car(list_env));
+	}
+}
+	
+

@@ -28,7 +28,7 @@ uint   sfs_get_sexpr( string input, FILE *fp );
 object sfs_read( char *input, uint *here );
 object sfs_read_atom( char *input, uint *here );
 object sfs_read_pair( char *stream, uint *here);
-
+object replacequote(char *input, uint *here);
 
 char * extraire_chaine(char * chaine, char* str,int k,int length,uint *here);
 int lengthstring(char * chaine);
