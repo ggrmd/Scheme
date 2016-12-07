@@ -9,6 +9,8 @@
  */
 
 #include "print.h"
+#include "list.h"
+#include "environnement.h"
 
 #include <stdio.h>
 

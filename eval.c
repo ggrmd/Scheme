@@ -9,6 +9,9 @@
  */
 
 #include "eval.h"
+#include "list.h"
+#include "environnement.h"
+
 
 object sfs_eval( object input )
 { 
@@ -17,9 +20,9 @@ object sfs_eval( object input )
     {   
         return input;
     }
-    if (input->type==SFS_PRIMITIVE)
+    if (input->type == SFS_PRIMITIVE)
     {
-	return input;
+	return sfs_eval_primitive(input);
     }
 
     /* SYMBOLE */
@@ -47,9 +50,21 @@ object sfs_eval( object input )
 
 object sfs_eval_pair(object input)
 {
-
+	object proc;
 /* quote */
-	
+	if (car(input)->type==SFS_PAIR)
+	{
+		proc=sfs_eval_pair(car(input));
+		if (proc->type==SFS_COMPOUND)
+		{
+			return sfs_eval_proc(proc,cdr(input));
+		}
+		else
+		{
+			WARNING_MSG("Not a procedure!");
+			return NULL;
+		}
+	}
         if ( isquote(car(input)) == 0 )
         {
             if ( cddr(input) != nil)
@@ -61,7 +76,7 @@ object sfs_eval_pair(object input)
         /* define */
         if ( isdefine(car(input)) == 0 )
         {
-            if (cdr(input)->type==SFS_NIL || cddr(input)->type==SFS_NIL || cdddr(input) != nil)
+            if (cdr(input)->type == SFS_NIL || cddr(input)->type==SFS_NIL || cdddr(input) != nil)
             {
                WARNING_MSG("define takes 2 arguments!");
             }
@@ -75,15 +90,15 @@ object sfs_eval_pair(object input)
 
             object symbole = cadr(input);
             object val = sfs_eval(caddr(input));
-
-            ajouter_variable(&list_env,symbole,val);
+	    object binding=make_pair(symbole,val);
+            ajouter_binding_list_env(binding,&list_env);
             return symbole ;
         }
 
         /* set! */
         if ( is_set(car(input)) == 0 )
         {
-            if (cdr(input)->type==SFS_NIL || cddr(input)->type==SFS_NIL || cdddr(input) != nil)
+            if (cdr(input)->type == SFS_NIL || cddr(input)->type==SFS_NIL || cdddr(input) != nil)
             {
                 WARNING_MSG("Set takes 2 arguments !");
 		return NULL;
@@ -112,9 +127,6 @@ object sfs_eval_pair(object input)
            
             return symbole;
 
-
-            
-            return symbole ;
         }
 
         /* and */
@@ -175,24 +187,53 @@ object sfs_eval_pair(object input)
                 }
             }
 
-
         }
+
+	if ( is_lambda(car(input)) == 0 )
+	{	
+		return sfs_eval_lambda(input);
+	}
+
+
 	if (car(input)->type == SFS_SYMBOL)
-	{        
-		return eval_primitive(input);
-	}
-	object res_car=sfs_eval(car(input));
-	if (cdr(input)!=nil)
-	{
-		return make_pair(res_car,sfs_eval(cdr(input)));
-	}
-	else
-	{
-		return make_pair(res_car,sfs_eval(cadr(input)));
-	}
+    	{
+		object value;
+		if (get_variable_value_list_env(list_env , car(input))==NULL)
+		{
+			WARNING_MSG("Unknown symbol");
+        		return NULL;
+   		}
+		else
+		{
+			value =retourner_valeur_symbole_env(car(input),car(list_env));
+        	}
+        	switch(value->type)
+    		{
+        		case SFS_PRIMITIVE :
+        		return sfs_eval_primitive(input);
+        		break;
+ 
+        		/*case SFS_COMPOUND:
+        		return sfs_eval_proc(value,cdr(input));            
+        		break;*/
+ 
+        		default:
+                	WARNING_MSG("Syntax error");
+                	return NULL;
+           
+   		}
+        }
+    
+ 
+ 
+    WARNING_MSG("Syntax error");
+    return NULL;
+ 
+
 }
 
-object eval_primitive(object input)
+
+object sfs_eval_primitive(object input)
 {
     object binding = get_variable_value_list_env(list_env,car(input));
     object o_prim = cdr(binding);
@@ -210,62 +251,6 @@ object eval_primitive(object input)
 }
 
 
-/* @fn : object caar (object o)
-   @brief : renvoie le car du car de l'object o
-   @pre: le car de o doit être une paire    */
-
-object caar (object o)
-{
-    return car(o)->this.pair.car; /* le prerequis est vérifié par la fonction car */
-}
-
-
-/* @fn : object cadr (object o)
-   @brief : renvoie le car du cdr de l'object o
-   @pre: le cdr de o doit être une paire    */
-
-object cadr (object o)
-{
-    return cdr(o)->this.pair.car;
-}
-
-
-/* @fn : object cdar(object o)
-   @brief : renvoie le cdr du car de l'object o
-   @pre: le car de o doit être une paire    */
-
-object cdar (object o)
-{
-    return car(o)->this.pair.cdr;
-}
-
-
-/* @fn : object cddr(object o)
-   @brief : renvoie le cdr du cdr de l'object o
-   @pre: le cdr de o doit être une paire    */
-
-object cddr(object o)
-{
-    return cdr(o)->this.pair.cdr;
-}
-
-/* @fn : object caddr(object o)
-   @brief : renvoie le car du cdr du cdr de l'object o
-   @pre: le cdr du cdr de o doit être une paire    */
-
-object caddr (object o)
-{
-    return cddr(o)->this.pair.car;
-}
-
-/* @fn : object cdddr(object o)
-   @brief : renvoie le cdr du cdr du cdr de l'object o
-   @pre: le cdr du cdr de o doit être une paire    */
-
-object cdddr (object o)
-{
-    return cddr(o)->this.pair.cdr;
-}
 
 
 
@@ -413,11 +398,68 @@ int is_reserved(string word)
 }
 
 
+int is_lambda (object o)
+{  /* if ( o->type != SFS_SYMBOL )
+    {
+        WARNING_MSG("Not a symbol !");
+    }*/
+    if (strcmp(o->this.symbol,"lambda") == 0)
+    {
+        return 0;
+    }
+    return 1;
+}
 
+object sfs_eval_lambda(object input){
+	if (cdr(input)==nil)
+	{
+		WARNING_MSG("Compound syntax error : right syntax is (lambda (parm) (body))");
+		return NULL;
+	}
+	if (car(cdr(input))->type!=SFS_PAIR)
+	{
+		WARNING_MSG("Compound syntax error : parameters must be in a list");
+		return NULL;
+	}
+	if (cdr(cdr(input))==nil)
+	{
+		WARNING_MSG("Compound syntax error : right syntax is (lambda (parm) (body))");
+		return NULL;
+	}
+	object param=car(cdr(input));
+	object body=car(cdr(cdr(input)));
+	object compound=make_compound(param,body,list_env);
+	return compound;
+}
 
+object sfs_eval_proc(object proc,object values)
+{
+	object env_courant=list_env;
+	object retour;
+	object param=proc->this.compound.parms;
+	object body=proc->this.compound.body;
+	object binding;
+	if (proc->type!=SFS_COMPOUND)
+	{
+		WARNING_MSG("Not a compound!");
+		return NULL;	
+	}
+	list_env=proc->this.compound.env;
+	object env_temp=make_pair(list_env,nil);
+	list_env=env_temp;
 
-
-
+	while (param!=nil && values!=nil)
+	{
+		binding=make_pair(car(param),make_pair(car(values),nil));
+		param=cdr(param);
+		values=cdr(values);
+		list_env->this.pair.cdr = make_pair(list_env->this.pair.cdr,binding);
+	}
+	
+	retour=sfs_eval(body);
+	list_env=env_courant;
+	return retour;
+}
 
 
 

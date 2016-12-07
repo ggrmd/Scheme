@@ -39,6 +39,12 @@ typedef struct object_t {
         struct object_t *special;
 	struct object_t *(*primitive)(struct object_t*);
 
+	struct { 
+		struct  object_t  *parms;
+		struct  object_t  *body;
+		struct  object_t  *env; 
+	}		compound;
+
     } this;
 
 } *object;
@@ -57,25 +63,9 @@ object make_pair(object car,object cdr);
 object make_symbol( string str );
 object make_plus_inf(void);
 object make_minus_inf(void);
-
-object cdr(object o);
-object car(object o);
-void set_car(object o, object p);
-
-object make_new_env(void);
-object make_new_list_env(void);
-object get_variable_value_env(object env, object symbole);
-object get_variable_value_list_env(object list_env, object symbole);
-
-void ajouter_env(object env, object* list_env);
-void enlever_env(object* list_env);
-void ajouter_variable(object* env,object symbole,object valeur);
-object retourner_valeur_symbole_env(object symbole,object env);
-object retourner_valeur_symbole_list_env(object symbole,object list_env);
-object envt_courant (object list_env);
-
 object make_primitive( Primitive p );
-void add_binding_to_list_env(object binding, object* list_env);
+object make_compound(object param,object body,object env);
+
 
 #define SFS_INTEGER      0x00
 #define SFS_CHARACTER    0x01
@@ -88,6 +78,7 @@ void add_binding_to_list_env(object binding, object* list_env);
 
 #define SFS_INTEGER_PINF     0x08
 #define SFS_INTEGER_MINF     0x09
+#define SFS_COMPOUND     0x10
 
 extern object nil;
 extern object vrai;

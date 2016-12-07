@@ -11,6 +11,7 @@
 #include <ctype.h>
 
 #include "read.h"
+#include"list.h"
 
 
 

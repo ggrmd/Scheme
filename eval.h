@@ -20,14 +20,9 @@ extern "C" {
 
 object sfs_eval( object input);
 object sfs_eval_pair(object input);
-object caar (object o);
-object cadr (object o);
-object cdar (object o);
-object cddr (object o);
-object caddr (object o);
-object cdddr (object o);
-object eval_primitive(object input);
-
+object sfs_eval_primitive(object input);
+object sfs_eval_lambda(object input);
+object sfs_eval_proc(object proc,object values);
 
 int isquote (object o);
 int isdefine (object o);
@@ -38,7 +33,7 @@ int is_or (object o);
 
 int is_reserved(string word);
 
-
+int is_lambda (object o);
 
 #ifdef __cplusplus
 }
